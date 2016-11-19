@@ -1,17 +1,17 @@
 package registro.purisimanes.org.registropurisima;
 
-import android.app.FragmentManager;
-import android.content.Context;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Xml;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,10 +24,12 @@ import java.io.FileOutputStream;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.jar.Manifest;
 
 public class RegistroPurisima extends AppCompatActivity {
 
     private static final String RUTA = Environment.getExternalStorageDirectory().getAbsolutePath()+""+File.separator+"Android"+File.separator+"data"+File.separator+"alarms.xml";
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 200;
 
     EditText etNombre;
     EditText etApellidos;
@@ -80,6 +82,9 @@ public class RegistroPurisima extends AppCompatActivity {
                 }
             }
         });
+
+        requestPermissions(this,new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE); // Habilitar permiso escritura a partir Android 6
     }
 
 
@@ -196,5 +201,59 @@ public class RegistroPurisima extends AppCompatActivity {
 
         sc.close();
         return datos;
+    }
+
+    // Habilitar permiso escritura a partir Android 6
+    public void requestPermissions (Activity activity, String[] permissions, int requestCode) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(RegistroPurisima.this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(RegistroPurisima.this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(RegistroPurisima.this,
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
+        // Habilitar permiso escritura a partir Android 6
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }
